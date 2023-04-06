@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from cpu_core import CpuCore
 from PIL import Image, ImageTk
+from main_mem import MainMem
 
 
 class MainWindow():
@@ -46,10 +47,14 @@ class MainWindow():
         for i in range(self.cores):
             # Variables
             self.next_instr_list.append(StringVar())
-            label_current_inst_title_list.append(ttk.Label(tables_frame, text='Current instruction:', font = "Arial 12 bold"))
-            label_next_inst_title_list.append(ttk.Label(tables_frame, text='Next instruction:', font = "Arial 12 bold"))
-            label_current_inst_list.append(ttk.Label(tables_frame, text='', font = "Arial 12", background="white", width=25))
-            entries_next_instr_list.append(ttk.Entry(tables_frame,font = "Arial 12", textvariable=self.next_instr_list[i], width=25))
+            label_current_inst_title_list.append(
+                ttk.Label(tables_frame, text='Current instruction:', font="Arial 12 bold"))
+            label_next_inst_title_list.append(
+                ttk.Label(tables_frame, text='Next instruction:', font="Arial 12 bold"))
+            label_current_inst_list.append(ttk.Label(
+                tables_frame, text='', font="Arial 12", background="white", width=25))
+            entries_next_instr_list.append(ttk.Entry(
+                tables_frame, font="Arial 12", textvariable=self.next_instr_list[i], width=25))
             self.current_instr_list.append(StringVar())
             self.next_instr_list.append(StringVar())
             self.bus_msgs_list.append(StringVar())
@@ -61,6 +66,8 @@ class MainWindow():
 
         self.main_mem_table = ttk.Treeview(tables_frame, columns=(
             'address', 'data'), show='headings', height=self.main_mem_blocks)
+
+        self.main_mem = MainMem(self.main_mem_table)
 
         self.table_list.append(self.main_mem_table)
 
@@ -82,13 +89,13 @@ class MainWindow():
         # Initialize Cpu cores data with default values
         for i in range(self.cores):
             self.table_list[i].insert(
-                '', 'end', 'b0', text='B0', values=('I', '000', '0', '0000'))
+                '', 'end', 'b0', text='B0', tags='b0', values=('I', '000', '0', '0000'))
             self.table_list[i].insert(
-                '', 'end', 'b1', text='B1', values=('I', '000', '0', '0000'))
+                '', 'end', 'b1', text='B1', tags='b1', values=('I', '000', '0', '0000'))
             self.table_list[i].insert(
-                '', 'end', 'b2', text='B2', values=('I', '000', '1', '0000'))
+                '', 'end', 'b2', text='B2', tags='b2', values=('I', '000', '1', '0000'))
             self.table_list[i].insert(
-                '', 'end', 'b3', text='B3', values=('I', '000', '1', '0000'))
+                '', 'end', 'b3', text='B3', tags='b3', values=('I', '000', '1', '0000'))
 
         self.main_mem_table.column('address', width=70, anchor='center')
         self.main_mem_table.heading('address', text='Address')
@@ -97,7 +104,7 @@ class MainWindow():
 
         for i in range(self.main_mem_blocks):
             self.main_mem_table.insert(
-                '', 'end', 'm'+str(i), text='M'+str(i), values=(self.int_to_binary(i), '0000'))
+                '', 'end', 'm'+str(i), text='M'+str(i), tags='b'+str(i), values=(self.int_to_binary(i), '0000'))
 
         # Positioning frames
         root_frame.grid(column=0, row=0)
@@ -141,13 +148,13 @@ class MainWindow():
 
         return binary_str
 
-    def start():
+    def start(self):
         pass
 
-    def next():
+    def next(self):
         pass
 
-    def stop():
+    def stop(self):
         pass
 
 

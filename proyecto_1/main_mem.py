@@ -2,20 +2,20 @@ from tkinter import *
 from tkinter import ttk
 
 
-class CpuCore:
+class MainMem:
 
-    def __init__(self, cache_tree_view, inst_var, bus_msg_var):
+    def __init__(self, cache_tree_view):
         super().__init__()
         self.cache_tree_view = cache_tree_view
-        self.current_instr = inst_var
-        self.bus_msg = bus_msg_var
 
-    def update_row(self, i, state, addr_mem, index, data):
-        new_values = (state, addr_mem, index, data)
-        self.cache_tree_view.item('b'+str(i), values=new_values)
+    def update_row(self, address, data):     
+        item_id = self.cache_tree_view.get_children()[int(address, 2)]
+        new_values = (address, data)
+        self.cache_tree_view.item(item_id, values=new_values)
 
     def get_row_values(self, i):
-        values = self.cache_tree_view.item('b'+str(i))['values']
+        item_id = self.cache_tree_view.get_children()[int(i, 2)]
+        values = self.cache_tree_view.item(item_id)['values']
         return values
 
     def change_row_color_green(self, block):
