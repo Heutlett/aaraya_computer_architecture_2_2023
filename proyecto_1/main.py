@@ -23,7 +23,7 @@ class MainWindow():
         self.cpu_table_headers_text = ('State', 'Addr mem', 'Index', 'Data')
 
         self.current_instr_list = []
-        self.next_instr_list = []
+        self.next_instr = StringVar()
         self.bus_msgs_list = []
 
         # Buttons
@@ -39,28 +39,29 @@ class MainWindow():
         # Cpu cores widgets
         labels_cpu_title = []
         label_current_inst_title_list = []
-        label_next_inst_title_list = []
-        entries_next_instr_list = []
+        #label_next_inst_title_list = []
+        #entries_next_instr_list = []
         label_current_inst_list = []
+
+        next_instr_title = ttk.Label(
+            buttons_frame, text='Next instruction:', font="Arial 12 bold")
+        next_instr_entry = ttk.Entry(
+            buttons_frame, font="Arial 12", textvariable=self.next_instr, width=25)
+
 
         # Initialize Cpu core lists and TreeViews
         for i in range(self.cores):
             # Variables
-            self.next_instr_list.append(StringVar())
+            #self.next_instr_list.append(StringVar())
             label_current_inst_title_list.append(
                 ttk.Label(tables_frame, text='Current instruction:', font="Arial 12 bold"))
-            label_next_inst_title_list.append(
-                ttk.Label(tables_frame, text='Next instruction:', font="Arial 12 bold"))
             label_current_inst_list.append(ttk.Label(
                 tables_frame, text='', font="Arial 12", background="white", width=25))
-            entries_next_instr_list.append(ttk.Entry(
-                tables_frame, font="Arial 12", textvariable=self.next_instr_list[i], width=25))
             self.current_instr_list.append(StringVar())
-            self.next_instr_list.append(StringVar())
             self.bus_msgs_list.append(StringVar())
             # Widgets
             labels_cpu_title.append(
-                ttk.Label(tables_frame, text='N'+str(i), foreground="blue", font="Arial 16 bold"))
+                ttk.Label(tables_frame, text='P'+str(i), foreground="blue", font="Arial 16 bold"))
             self.table_list.append(ttk.Treeview(
                 tables_frame, columns=self.cpu_table_headers, height=4))
 
@@ -74,7 +75,7 @@ class MainWindow():
         # Creating Cpu cores
         for i in range(self.cores):
             self.cpu_list.append(CpuCore(
-                self.table_list[i], self.current_instr_list[i], self.bus_msgs_list[i]))
+                self.table_list[i], self.current_instr_list[i], self.bus_msgs_list[i], i))
             # First column block
             self.table_list[i].column('#0', width=60)
             self.table_list[i].heading('#0', text='Block')
@@ -114,14 +115,15 @@ class MainWindow():
         self.button_start.grid(column=0, row=0)
         self.button_next.grid(column=1, row=0)
         self.button_stop.grid(column=2, row=0)
+        
+        next_instr_title.grid(column=3, row=0, padx=20)
+        next_instr_entry.grid(column=4, row=0, padx=5)
 
         # Positioning Cpu cores tables
         for i in range(self.cores):
-            labels_cpu_title[i].grid(column=i, row=0)
-            label_current_inst_title_list[i].grid(column=i, row=1)
-            label_current_inst_list[i].grid(column=i, row=2)
-            label_next_inst_title_list[i].grid(column=i, row=3)
-            entries_next_instr_list[i].grid(column=i, row=4)
+            labels_cpu_title[i].grid(column=i, row=1)
+            label_current_inst_title_list[i].grid(column=i, row=2)
+            label_current_inst_list[i].grid(column=i, row=3)
             self.table_list[i].grid(
                 column=i, row=5, padx=15, pady=5, columnspan=1)
 
@@ -149,6 +151,7 @@ class MainWindow():
         return binary_str
 
     def start(self):
+        print(self.cpu_list[0].generate_instruction())
         pass
 
     def next(self):
