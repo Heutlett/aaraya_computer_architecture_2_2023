@@ -29,15 +29,18 @@ class MainWindow():
         tables_frame = ttk.Frame(root_frame, style="White.TFrame", padding="30 0 0 0")
         mem_frame = ttk.Frame(tables_frame, style="Blue.TFrame", padding="0 10 0 10")
 
+        # System variables
         self.cores = 4
         self.main_mem_blocks = 8
         self.cpu_list = []
         self.table_list = []
         self.bus_queue = queue.Queue()
 
+        # Headers cache cpu tree_views
         self.cpu_table_headers = ('state', 'tag', 'index', 'data')
         self.cpu_table_headers_text = ('State', 'Tag', 'Index', 'Data')
 
+        # Instructions variables
         self.current_instr_list = []
         self.next_instr_list = []
         self.bus_msgs_list = []
@@ -100,14 +103,13 @@ class MainWindow():
             labels_bus_list.append(ttk.Label(
                 tables_frame, textvariable=self.bus_msgs_list[i], font="Arial 12 bold", background="white", foreground="forest green", width=11))
             
-
+        # Creating tree_view mem
         self.main_mem_table = ttk.Treeview(mem_frame, columns=(
             'address', 'data'), show='headings', height=self.main_mem_blocks)
-
         self.main_mem = MainMem(self.main_mem_table)
-        
         self.table_list.append(self.main_mem_table)
 
+        # Creating bus
         self.bus = Bus(self.main_mem.cache_tree_view, self.bus_queue, self.table_list, self.cores)
         
         # Creating Cpu cores
@@ -136,21 +138,23 @@ class MainWindow():
             self.table_list[i].insert(
                 '', 'end', 'b3', text='B3', tags='b3', values=('I', '00', '1', '0000'))
 
+        # Creating mem tree_view 
         self.main_mem_table.column('address', width=70, anchor='center')
         self.main_mem_table.heading('address', text='Address')
         self.main_mem_table.column('data', width=70, anchor='center')
         self.main_mem_table.heading('data', text='Data')
 
+        # Initializing mem blocks
         for i in range(self.main_mem_blocks):
             self.main_mem_table.insert(
-                '', 'end', 'm'+str(i), text='M'+str(i), tags='m'+str(i), values=(self.int_to_binary(i), '000'))
+                '', 'end', 'm'+str(i), text='M'+str(i), tags='m'+str(i), values=(utils.int_to_binary(i), '000'))
 
         # Positioning frames
         root_frame.grid(column=0, row=0)
         buttons_frame.grid(column=0, row=0)
         tables_frame.grid(column=0, row=1)
         
-
+        # Positioning buttons
         self.button_start.grid(column=0, row=0, padx=5)
         self.button_next.grid(column=2, row=0, padx=25)
         self.button_stop.grid(column=1, row=0)
@@ -177,25 +181,10 @@ class MainWindow():
         bus_img_label.grid(column=0, row=7, columnspan=4, pady=10)
 
         # Positioning main memory tables
-
-        mem_title = ttk.Label(mem_frame, foreground='white', background='SteelBlue4',text='        Main Memory        ', font="Arial 16 bold")
-        
+        mem_title = ttk.Label(mem_frame, foreground='white', background='SteelBlue4',text='        Main Memory        ', font="Arial 16 bold")        
         mem_frame.grid(column=0, row=8, columnspan=4)
         mem_title.grid(column=0, row=0)
         self.main_mem_table.grid(column=0, row=1, pady=5)
-
-    def int_to_binary(self, n):
-        binary_str = ""
-        if(n == 0):
-            return "000"
-        while n > 0:
-            remainder = n % 2
-            binary_str = str(remainder) + binary_str
-            n = n // 2
-        if len(binary_str) < 4:
-            binary_str = "0" * (3 - len(binary_str)) + binary_str
-
-        return binary_str
 
     def put_new_instructions(self):
         print("\n\t✴️  Se crean las NEXT 🔜 instr:")
@@ -214,14 +203,9 @@ class MainWindow():
         self.button_stop.state(['!disabled'])
         
     def update_next(self):
-        
         if(self.playing):
-        
             self.next_action()
             self.root.after(2000, self.update_next)
-            
-        
-        # self.put_new_instructions()
 
     def next(self):
         self.button_next.state(['!disabled'])
@@ -254,6 +238,7 @@ class MainWindow():
         
         thread_bus = thread.Thread(target=self.bus.process_bus_queue, args=())
         thread_bus.start()
+
 
 if __name__ == "__main__":
     root = Tk()
