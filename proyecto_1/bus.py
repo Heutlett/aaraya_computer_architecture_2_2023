@@ -57,26 +57,7 @@ class Bus:
                     if state == 'M' or state == 'O':
                         print("📝📝📝📝 WRITE BACK (state = M or O) 📝📝📝📝")
                         # Writeback ---------- cache_block = ['state', tag, index, data] --------------------
-                        
-                        # Dato a escribir en memoria
-                        writeback_data = str(cache_block[3])
-                        writeback_data = '0'*(4-len(writeback_data))+writeback_data
-                        # Direccion donde se va a escribir en memoria
-                        print("writeback_data:", writeback_data)
-                        writeback_addr = str(cache_block[1]) + str(cache_block[2])
-                        writeback_addr = '0'*(3-len(writeback_addr))+writeback_addr
-                        print("writeback_addr:", writeback_addr)
-                        mem_block_id = 'm'+str(int(writeback_addr,2))
-                        # Se hace el wb actualizando el treeview de la memoria
-                        writeback_mem_block = self.treeview_main_mem.item(mem_block_id)['values']
-                        print("before writeback_mem_block:",writeback_mem_block)
-                        writeback_mem_block[0] = writeback_addr
-                        writeback_mem_block[1] = writeback_data
-                        print("after writeback_mem_block:",writeback_mem_block)
-                        # Actualiza y cambia el color del bloque en memoria principal a turquoise1
-                        self.treeview_main_mem.item(mem_block_id, values=writeback_mem_block)
-                        self.treeview_main_mem.tag_configure(mem_block_id, background='turquoise1')
-                        time.sleep(0.5)
+                        self.make_write_back(cache_block)
                     
                     # Reemplazo de bloque y lectura de dato
                     print("♻️♻️♻️♻️  Reemplazo de bloque y lectura de dato ♻️♻️♻️♻️")
@@ -137,27 +118,7 @@ class Bus:
                     if state == 'M' or state == 'O':
                         print("📝📝📝📝 WRITE BACK (state = M or O) 📝📝📝📝")
                         # Writeback ------------- cache_block = ['state', tag, index, data] --------------------
-                        
-                        # Dato a escribir en memoria
-                        writeback_data = str(cache_block[3])
-                        writeback_data = '0'*(4-len(writeback_data))+writeback_data
-                        print("towbdata:", writeback_data)
-                        # Direccion donde se va a escribir en memoria
-                        writeback_addr = str(cache_block[1]) + str(cache_block[2])
-                        writeback_addr = '0'*(3-len(writeback_addr))+writeback_addr
-                        print("towaddr:", writeback_addr)
-                        mem_block_id = 'm'+str(int(writeback_addr,2))
-                        # Se hace el wb actualizando el treeview de la memoria
-                        writeback_mem_block = self.treeview_main_mem.item(mem_block_id)['values']
-                        print("after writeback_mem_block:", writeback_mem_block)
-                        writeback_mem_block[0] = writeback_addr
-                        writeback_mem_block[1] = writeback_data
-                        print("after writeback_mem_block:", writeback_mem_block)
-                        # Actualiza el bloque en memoria y lo cambia color turquoise1
-                        self.treeview_main_mem.item(mem_block_id, values=writeback_mem_block)
-                        self.treeview_main_mem.tag_configure(mem_block_id, background='turquoise1')
-                        # Hace un sleep de 0.5 segundos para simular el delay de la memoria
-                        time.sleep(0.5)
+                        self.make_write_back(cache_block)
                         
                     # Se escribe en cache
                     print("✏️💙✏️💙 WRITE INTO CACHE ✏️💙✏️💙")
@@ -177,6 +138,26 @@ class Bus:
                     continue
             else:
                 continue
+    
+    # Realiza WB en memoria
+    def make_write_back(self, cache_block):
+        
+        # Dato a escribir en memoria
+        writeback_data = str(cache_block[3])
+        writeback_data = '0'*(4-len(writeback_data))+writeback_data
+        # Direccion donde se va a escribir en memoria
+        writeback_addr = str(cache_block[1]) + str(cache_block[2])
+        writeback_addr = '0'*(3-len(writeback_addr))+writeback_addr
+        mem_block_id = 'm'+str(int(writeback_addr,2))
+        # Se hace el wb actualizando el treeview de la memoria
+        writeback_mem_block = self.treeview_main_mem.item(mem_block_id)['values']
+        writeback_mem_block[0] = writeback_addr
+        writeback_mem_block[1] = writeback_data
+        # Actualiza el bloque en memoria y lo cambia color turquoise1
+        self.treeview_main_mem.item(mem_block_id, values=writeback_mem_block)
+        self.treeview_main_mem.tag_configure(mem_block_id, background='turquoise1')
+        # Hace un sleep de 0.5 segundos para simular el delay de la memoria
+        time.sleep(0.5)
     
     # Utilizado cuando hay READ MISS:
     # Busca en todas las caches un bloque con el address pasado por parametro 
