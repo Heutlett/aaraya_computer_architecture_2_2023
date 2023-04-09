@@ -32,7 +32,6 @@ class CpuController:
         # Instruccion CALC
         if operation == 'CALC':
             self.bus_string_var.set("CALC")
-            print(f"{self.processor_id}: CALC")
             self.bus_queue.put(['P'+str(self.processor_id), 'CALC'])
             return
         

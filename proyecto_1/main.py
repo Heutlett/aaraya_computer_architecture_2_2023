@@ -1,13 +1,13 @@
 from time import sleep
 from tkinter import *
 from tkinter import ttk
-from cpu_core import CpuController
+from src.cpu_core import CpuController
 from PIL import Image, ImageTk
-from main_mem import MainMem
-import utils
+from src.main_mem import MainMem
+import src.utils
 import threading as thread
 import queue
-from bus import Bus
+from src.bus import Bus
 
 class MainWindow():
     def __init__(self, root):
@@ -145,7 +145,7 @@ class MainWindow():
         # Initializing mem blocks
         for i in range(self.main_mem_blocks):
             self.main_mem_table.insert(
-                '', 'end', 'm'+str(i), text='M'+str(i), tags='m'+str(i), values=(utils.int_to_binary(i), '000'))
+                '', 'end', 'm'+str(i), text='M'+str(i), tags='m'+str(i), values=(src.utils.int_to_binary(i), '000'))
 
         # Positioning frames
         root_frame.grid(column=0, row=0)
@@ -212,15 +212,13 @@ class MainWindow():
         
 
     def put_new_instructions(self):
-        print("\n\t✴️  Se crean las NEXT 🔜 instr:")
         threads = list()
         for i in range(self.cores):
-            thread_i = thread.Thread(target=utils.set_next_instruction, args=(i,self.next_instr_list[i],))
+            thread_i = thread.Thread(target=src.utils.set_next_instruction, args=(i,self.next_instr_list[i],))
             threads.append(thread_i)
             thread_i.start()
 
     def start(self):
-        print("\n✅ Se presiona start: ")
         self.playing = True
         self.update_next()
         self.button_next.state(['disabled'])
@@ -236,9 +234,6 @@ class MainWindow():
         self.button_next.state(['!disabled'])
         self.button_start.state(['!disabled'])
         self.button_stop.state(['disabled'])
-        print("\n⏩ Se presiona Next:\n")
-        print("\tNEXT instr 🔜 => CURRENT instr ❇️")
-        print("\t🔃 Procesando CURRENT instr ❇️")
         self.next_action()
 
     def stop(self):

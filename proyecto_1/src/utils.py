@@ -19,7 +19,6 @@ def generate_instruction(processor_id):
 
 def set_next_instruction(processor_id, next_inst_string_var):
     next_inst_string_var.set(generate_instruction(processor_id))
-    print("\tp"+str(processor_id) + ": Se agrega la instruccion: ", next_inst_string_var.get())
     
 
 def int_to_binary(n):
