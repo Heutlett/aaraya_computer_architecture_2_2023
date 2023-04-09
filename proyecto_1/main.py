@@ -13,10 +13,17 @@ class MainWindow():
     def __init__(self, root):
         super().__init__()
 
+        # Styles
+        style = ttk.Style()
+        style.configure("White.TFrame", background="white")
+        style.configure("Blue.TFrame", background="SkyBlue2")
+
+
         # Tkinter frames
-        root_frame = ttk.Frame(root)
-        buttons_frame = ttk.Frame(root_frame, padding="30 30 30 30")
-        tables_frame = ttk.Frame(root_frame, padding="30 0 0 0")
+        root_frame = ttk.Frame(root, style="White.TFrame")
+        buttons_frame = ttk.Frame(root_frame, style="White.TFrame", padding="0 10 0 10")
+        tables_frame = ttk.Frame(root_frame, style="White.TFrame", padding="30 0 0 0")
+        mem_frame = ttk.Frame(tables_frame, style="Blue.TFrame", padding="0 10 0 10")
 
         self.cores = 4
         self.main_mem_blocks = 8
@@ -31,16 +38,26 @@ class MainWindow():
         self.next_instr_list = []
         self.bus_msgs_list = []
         self.next_instr_entry_text = StringVar()
+        
+        # Images for buttons
+        self.start_image = ImageTk.PhotoImage(Image.open('play_button.png')
+            .resize((130,50), Image.ANTIALIAS))
+        
+        self.stop_image = ImageTk.PhotoImage(Image.open('stop_button.png')
+            .resize((130,50), Image.ANTIALIAS))
+        
+        self.next_image = ImageTk.PhotoImage(Image.open('next_button.png')
+            .resize((130,50), Image.ANTIALIAS))
 
         # Buttons
         self.button_start = ttk.Button(
-            buttons_frame, text='Start', command=self.start)
+            buttons_frame, text='Play', image=self.start_image, command=self.start)
 
         self.button_next = ttk.Button(
-            buttons_frame, text='Next', command=self.next)
+            buttons_frame, text='Next', image=self.next_image, command=self.next)
 
         self.button_stop = ttk.Button(
-            buttons_frame, text='Stop', command=self.stop)
+            buttons_frame, text='Stop', image=self.stop_image, command=self.stop)
 
         # Cpu cores widgets
         labels_cpu_title = []
@@ -49,33 +66,38 @@ class MainWindow():
         entries_next_instr_list = []
         label_current_inst_list = []
         labels_bus_list = []
+        frames_cpu_list = []
 
         # Initialize Cpu core lists and TreeViews
         for i in range(self.cores):
+            # Frame
+            frames_cpu_list.append(ttk.Frame(tables_frame, style="Blue.TFrame", padding="0 0 0 10"))
             # Next insts
             self.next_instr_list.append(StringVar())
             label_next_inst_title_list.append(
-                ttk.Label(tables_frame, text='Next instruction:', font="Arial 12 bold"))
+                ttk.Label(frames_cpu_list[i], background="lavender", text='    Next instruction:                     ', font="Arial 12 bold"))
             entries_next_instr_list.append(ttk.Entry(
-                tables_frame, font="Arial 12", textvariable=self.next_instr_list[i], width=25))
+                frames_cpu_list[i], font="Arial 12", textvariable=self.next_instr_list[i], style="Custom.TEntry", width=25,))
             # Current insts
             self.current_instr_list.append(StringVar())
             label_current_inst_title_list.append(
-                ttk.Label(tables_frame, text='Current instruction:', font="Arial 12 bold"))
+                ttk.Label(frames_cpu_list[i], background="MistyRose2", text='    Current instruction:               ', font="Arial 12 bold"))
             label_current_inst_list.append(ttk.Label(
-                tables_frame, textvariable=self.current_instr_list[i], font="Arial 12", background="white", width=25))
+                frames_cpu_list[i], textvariable=self.current_instr_list[i], foreground='OrangeRed4', font="Arial 12", background="azure3", width=25))
             self.current_instr_list.append(StringVar())
             self.bus_msgs_list.append(StringVar())
+            self.bus_msgs_list[i].set("No operation")
             # Widgets
             labels_cpu_title.append(
-                ttk.Label(tables_frame, text='P'+str(i), foreground="blue", font="Arial 16 bold"))
+                ttk.Label(frames_cpu_list[i], foreground='white', background='SteelBlue4',text='                           P'+str(i) + '                           ', font="Arial 16 bold"))
             self.table_list.append(ttk.Treeview(
-                tables_frame, columns=self.cpu_table_headers, height=4))
+                frames_cpu_list[i], columns=self.cpu_table_headers, height=4))
             # Bus
             labels_bus_list.append(ttk.Label(
-                tables_frame, textvariable=self.bus_msgs_list[i], font="Arial 8", background="yellow", foreground="black", width=11))
+                tables_frame, textvariable=self.bus_msgs_list[i], font="Arial 12 bold", background="white", foreground="forest green", width=11))
+            
 
-        self.main_mem_table = ttk.Treeview(tables_frame, columns=(
+        self.main_mem_table = ttk.Treeview(mem_frame, columns=(
             'address', 'data'), show='headings', height=self.main_mem_blocks)
 
         self.main_mem = MainMem(self.main_mem_table)
@@ -123,22 +145,24 @@ class MainWindow():
         root_frame.grid(column=0, row=0)
         buttons_frame.grid(column=0, row=0)
         tables_frame.grid(column=0, row=1)
+        
 
-        self.button_start.grid(column=0, row=0)
-        self.button_next.grid(column=1, row=0)
-        self.button_stop.grid(column=2, row=0)
+        self.button_start.grid(column=0, row=0, padx=5)
+        self.button_next.grid(column=2, row=0, padx=25)
+        self.button_stop.grid(column=1, row=0)
 
         # Positioning Cpu cores tables
         for i in range(self.cores):
-            labels_cpu_title[i].grid(column=i, row=0)
+            frames_cpu_list[i].grid(column=i, row=0, padx=5)
+            labels_cpu_title[i].grid(column=i, row=0, pady=10)
 
             label_next_inst_title_list[i].grid(column=i, row=1)
-            entries_next_instr_list[i].grid(column=i, row=2)
-            label_current_inst_title_list[i].grid(column=i, row=3)
+            entries_next_instr_list[i].grid(column=i, row=2,pady=5)
+            label_current_inst_title_list[i].grid(column=i, row=3,pady=5)
             label_current_inst_list[i].grid(column=i, row=4)
             self.table_list[i].grid(
                 column=i, row=5, padx=15, pady=5, columnspan=1)
-            labels_bus_list[i].grid(column=i, row=6)
+            labels_bus_list[i].grid(column=i, row=6, pady=5)
 
         # Creating and positioning bus image
         bus_img = Image.open("bus_img.png")
@@ -148,7 +172,12 @@ class MainWindow():
         bus_img_label.grid(column=0, row=7, columnspan=4, pady=10)
 
         # Positioning main memory tables
-        self.main_mem_table.grid(column=0, row=8, columnspan=4)
+
+        mem_title = ttk.Label(mem_frame, foreground='white', background='SteelBlue4',text='        Main Memory        ', font="Arial 16 bold")
+        
+        mem_frame.grid(column=0, row=8, columnspan=4)
+        mem_title.grid(column=0, row=0)
+        self.main_mem_table.grid(column=0, row=1, pady=5)
 
     def int_to_binary(self, n):
         binary_str = ""
@@ -204,5 +233,6 @@ if __name__ == "__main__":
     root = Tk()
     root.title("MOESI SIMULATOR")
     root.geometry("1500x750+5+5")
+    root.configure(bg='white')
     MainWindow(root)
     root.mainloop()
