@@ -61,7 +61,7 @@ class CpuController:
                 if state == 'I':
                     print("READ MISS - STATE I")
                     request_type = 'READ MISS'
-                    self.cpu.change_block_color_red(block_id)
+                    #self.cpu.change_block_color_red(block_id)
                 # Si encuentra el bloque y no esta invalido [READ HIT]
                 else:
                     print("READ HIT")
@@ -91,9 +91,21 @@ class CpuController:
             
             # Si el address de la instr esta en la cache
             if block != -1:
-                print("WRITE HIT")
-                request_type = 'WRITE HIT'
-                self.cpu.change_block_color_green(block_id)
+                
+                # Estado del bloque
+                state = block[0]
+                
+                # Si encuentra el bloque pero esta invalido [WRITE MISS]
+                if state == 'I':
+                    print("WRITE MISS - STATE I")
+                    request_type = 'WRITE MISS'
+                    self.cpu.change_block_color_red(block_id)
+                # Si encuentra el bloque y no esta invalido [WRITE HIT]
+                else:
+                    print("WRITE HIT")
+                    request_type = 'WRITE HIT'
+                    # Cambia el bloque encontrado a color verde
+                    self.cpu.change_block_color_green(block_id)
                 
             # Si el address de la instr no esta en la cache    
             else:       
@@ -170,6 +182,7 @@ class CpuCore:
     # Busca una direccion en la cache del procesador y devuelve -1 en caso de no encontrarla
     def get_block_in_cache(self, address):
         print("P" + str(self.processor_id) + ": busca el addr:", address)
+        block_id, block = -1,-1
         for i in range(self.cache_size):
             print("Address block",i,":", self.cache_list[i])
             
@@ -179,9 +192,16 @@ class CpuCore:
             print("block_addr:", block_addr)
             if(block_addr == address):
                 print("p" + str(self.processor_id) + ": ✅ SI encontró el addr:", address, " retorna:", i,self.cache_list[i])
-                return i,self.cache_list[i]
-        print("p" + str(self.processor_id) + ": ❌ NO encontró el addr:", address, " retorna:", -1,-1)
-        return -1,-1
+                block_id, block = i,self.cache_list[i]
+                print("🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉BLOCK:", block)
+                if(block[0] != 'I'):
+                    print("SI es diferente de I")
+                    return block_id, block
+                else:
+                    print("NO es diferente de I")
+                    
+        print("p" + str(self.processor_id) + ": ❌ NO encontró el addr:", address, " retorna:", block_id, block)
+        return block_id, block
     
     # Cambia el color de todos los bloques a blanco
     def set_all_blocks_white(self):

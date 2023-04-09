@@ -24,7 +24,7 @@ class Bus:
             print("\n🚌🚌🚌🚌🚌🚌🚌🚌🚌🚌🚌🚌 Bus process 🚌🚌🚌🚌🚌🚌🚌🚌🚌🚌🚌🚌")
             head_request_queue = self.request_queue.get()   # head_request_queue = ['P0', 'WRITE MISS', 'b0', '101', '2bfe']
             operation = head_request_queue[1].split()[0]    # operation = {READ, WRITE, CALC}
-            request_type = head_request_queue[1]                 # bus_msg = {WRITE MISS, WRITE HIT, READ MISS, CALC}
+            request_type = head_request_queue[1]            # bus_msg = {WRITE MISS, WRITE HIT, READ MISS, CALC}
             processor_id = int(head_request_queue[0][1])    # proccesor_id = {0,1,2,3}
             print("head_queue:",head_request_queue)
             print("operation:", operation)
@@ -38,11 +38,11 @@ class Bus:
                 print("⏬ continue")
                 continue
             
-            cache_block_id = head_request_queue[2]                              # cache_block_id = {b0,b1,b2,b3}
-            address_instr = head_request_queue[3]                               # address_instr = {000, 001, 010, 111}
+            cache_block_id = head_request_queue[2]                                      # cache_block_id = {b0,b1,b2,b3}
+            address_instr = head_request_queue[3]                                       # address_instr = {000, 001, 010, 111}
             print("cache_block_id:", cache_block_id)
-            cache_block = request_cpu_cache_treeview.item(cache_block_id)['values']    # cache_block = ['I', 0, 0, 0]
-            state = cache_block[0]                                              # state: {M,O,E,S,I,M}
+            cache_block = request_cpu_cache_treeview.item(cache_block_id)['values']     # cache_block = ['I', 0, 0, 0]
+            state = cache_block[0]                                                      # state: {M,O,E,S,I,M}
             print("cache_block:", cache_block)
             print("address_instr:", address_instr)
             print("state:",state)
@@ -52,7 +52,7 @@ class Bus:
                 print("👁️👁️👁️👁️  READ INSTRUCTION  👁️👁️👁️👁️")
                 # Request READ MISS
                 if request_type == 'READ MISS':
-                    print("🔕🔕🔕🔕 READ MISS 🔕🔕🔕🔕")
+                    print("👁️❌👁️❌ READ MISS 👁️❌👁️❌")
                     # Si se requiere writeback (state M or O)
                     if state == 'M' or state == 'O':
                         print("📝📝📝📝 WRITE BACK (state = M or O) 📝📝📝📝")
@@ -113,6 +113,12 @@ class Bus:
                 # Request WRITE HIT
                 if request_type == 'WRITE HIT':
                     print("✏️✅✏️✅ WRITE HIT ✏️✅✏️✅")
+                    
+                    # Si hay un WRITE HIT y el bloque esta en M o E no es necesario invalidar otros bloques
+                    if(cache_block[0] != 'M' and cache_block[0] != 'E'):
+                        # Busca si hay otros bloques con misma address para invalidarlos I
+                        self.search_cache_to_invalidate(address_instr, processor_id)
+                        
                     print("before cache_block:", cache_block)
                     # Actualiza el bloque con el nuevo dato, direccion y estado M
                     cache_block[0] = 'M'
@@ -122,8 +128,6 @@ class Bus:
                     # Actualiza el treeview del bloque y la cambia a color verde
                     request_cpu_cache_treeview.item(cache_block_id, values=cache_block)
                     request_cpu_cache_treeview.tag_configure(cache_block_id, background='green2')
-                    # Busca si hay otros bloques con misma address para invalidarlos I
-                    self.search_cache_to_invalidate(address_instr, processor_id)
                     continue
                 # Request WRITE MISS
                 elif request_type == 'WRITE MISS':
@@ -163,7 +167,7 @@ class Bus:
                     print("cache_block:", cache_block)
                     # Se actualiza el treeview del bloque de cache y se cambia a color verde
                     request_cpu_cache_treeview.item(cache_block_id, values=cache_block)
-                    request_cpu_cache_treeview.tag_configure(cache_block_id, background='green2')
+                    request_cpu_cache_treeview.tag_configure(cache_block_id, background='cyan')
                     print("item:", cache_block_id)
                     print("tag:", cache_block_id)
                     # Busca si hay otros bloques con misma address para invalidarlos I
@@ -172,9 +176,10 @@ class Bus:
             else:
                 continue
     
-    # Busca en todos los bloque en busca de un address para determinar si es E
-    #   si lo encuentra y es diferente de I retorna falso, es decir no es E
-    #   si no lo encuentra o solo esta en I retorna true
+    # Utilizado cuando hay READ MISS:
+    # Busca en todas las caches un bloque con el address pasado por parametro 
+    #   para determinar si es E si lo encuentra y es diferente de I retorna falso, 
+    #   es decir no es E si no lo encuentra o solo esta en I retorna true
     def address_is_exclusive(self, addr_instr, processor_id):
         print("\n 💙💙💙💙 address_is_exclusive process 💙💙💙💙")
         # Itera sobre todas las caches menos la propia
@@ -192,7 +197,7 @@ class Bus:
         print("✅✅✅✅ ES UNICO, será E ✅✅✅✅")
         return True
     
-    # Busca los bloques con el address pasado parametro y los invalida
+    # Busca los bloques con el address pasado parametro y los invalida en caso de que esten ya invalidados
     def search_cache_to_invalidate(self, addr_instr, processor_id):
         print("\n 💚💚💚💚 search_cache_to_invalidate process 💚💚💚💚")
         # Itera sobre todas las caches menos la propia
@@ -203,7 +208,7 @@ class Bus:
                     block = cache_treeview.item('b'+str(i))['values']
                     block_addr = str(block[1]) + str(block[2])
                     block_addr = '0'*(3-len(block_addr))+block_addr
-                    if block_addr == addr_instr:
+                    if block_addr == addr_instr and block[0] != 'I':
                         print("✅✅✅✅ Ha encontrado un bloque que debe invalidar ✅✅✅✅")
                         print("Se encontró en la cache:", cache_id)
                         # cache_block = ['state', tag, index, data]
@@ -213,12 +218,14 @@ class Bus:
                         cache_treeview.item('b'+str(i), values=block)
                         # Hace un sleep de 0.5 segundos
                         time.sleep(0.5)
-                        # Cambia el color del bloque del treeview a verde
-                        cache_treeview.tag_configure('b'+str(i), background='green2')
-                        return
+                        # Cambia el color del bloque del treeview a salmon
+                        cache_treeview.tag_configure('b'+str(i), background='salmon')
+                        #return
         return
 
+    # Utilizado cuando hay READ MISS:
     # Busca en las caches si hay bloques en estado M or O de una direccion pasada por parametro
+    # para obtener el dato sin tener que ir a la memoria
     def search_cache_modifiew_owned(self, addr_instr, processor_id):
         print("\n ❤️❤️❤️❤️ search_modifiew_owned process ❤️❤️❤️❤️")
         # Itera sobre todas las caches menos la propia
@@ -254,7 +261,9 @@ class Bus:
         print("\ntemp_data_read:", temp_data_read)
         return '0'*(4-len(temp_data_read))+temp_data_read
     
+    # Utilizado cuando hay READ MISS:
     # Busca en las caches si hay un bloque en estado E con la direccion pasada por parametro
+    # para cambiar el estado de E a S
     def seach_cache_exclusive(self, addr_instr, processor_id):
         print("\n 💛💛💛💛 seach_exclusive process 💛💛💛💛")
         # Itera sobre todas las caches menos la propia
