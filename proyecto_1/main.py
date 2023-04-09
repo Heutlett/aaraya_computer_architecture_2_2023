@@ -187,14 +187,15 @@ class MainWindow():
         # Colors reference
         colors_ref_frame.grid(column=0, row=8)
         title_color_ref = ttk.Label(colors_ref_frame, foreground='white', background='SteelBlue4', width=20, text='Colors reference', font="Arial 10 bold")
-        read_hit_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='SeaGreen1',text='Read hit', font="Arial 10 bold")
+        read_hit_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='medium spring green',text='Read hit', font="Arial 10 bold")
         read_miss_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='Salmon',text='Read miss', font="Arial 10 bold")
         read_after_miss_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='yellow',text='Read after miss', font="Arial 10 bold")
-        write_miss_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='HotPink',text='Write miss', font="Arial 10 bold")
+        write_miss_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='tan4',text='Write miss', font="Arial 10 bold")
         write_hit_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='DarkOrange1',text='Write hit', font="Arial 10 bold")
         write_after_miss = ttk.Label(colors_ref_frame, foreground='black', width=20, background='green2',text='Write after miss', font="Arial 9 bold")
         wb_mem_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='turquoise1',text='Write back', font="Arial 10 bold")
-        found_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='RoyalBlue1',text='Found (O, M) in other P', font="Arial 9 bold")
+        found_in_cache_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='RoyalBlue1',text='Found (O, M) in other P', font="Arial 9 bold")
+        found_in_mem_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='Magenta2',text='Found in mem', font="Arial 9 bold")
         to_invalidate_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='red',text='To invalidate', font="Arial 10 bold")
         title_color_ref.grid        (column=0, row=0, pady=5)
         read_hit_color.grid         (column=0, row=1, pady=2)
@@ -204,8 +205,9 @@ class MainWindow():
         write_miss_color.grid       (column=0, row=5, pady=2)
         write_after_miss.grid       (column=0, row=6, pady=2)
         wb_mem_color.grid           (column=0, row=7, pady=2)
-        found_color.grid            (column=0, row=8, pady=2)
-        to_invalidate_color.grid    (column=0, row=9, pady=2)
+        found_in_cache_color.grid   (column=0, row=8, pady=2)
+        found_in_mem_color.grid     (column=0, row=9, pady=2)
+        to_invalidate_color.grid    (column=0, row=10, pady=2)
         
         
 

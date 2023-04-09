@@ -232,7 +232,7 @@ class CpuCore:
         
     # Cambia el color de un bloque a SeaGreen1
     def change_block_color_read_hit(self, block):
-        self.cache_tree_view.tag_configure('b'+str(block), background='SeaGreen1')
+        self.cache_tree_view.tag_configure('b'+str(block), background='medium spring green')
         
     # Cambia el color de un bloque a salmon
     def change_block_color_read_miss(self, block):
@@ -240,7 +240,7 @@ class CpuCore:
         
     # Cambia el color de un bloque a SeaGreen1
     def change_block_color_write_miss(self, block):
-        self.cache_tree_view.tag_configure('b'+str(block), background='HotPink')
+        self.cache_tree_view.tag_configure('b'+str(block), background='tan4')
         
     # Cambia el color de un bloque a gold
     def change_block_color_write_hit(self, block):

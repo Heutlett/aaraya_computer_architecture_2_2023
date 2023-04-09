@@ -240,33 +240,7 @@ class Bus:
         mem_block_id = 'm'+str(int(addr_instr,2))
         temp_data_read = str(self.treeview_main_mem.item(mem_block_id)['values'][1])
         # Se cambia el color del bloque en la memoria
-        ####self.treeview_main_mem.tag_configure(mem_block_id, background='green2')
+        self.treeview_main_mem.tag_configure(mem_block_id, background='Magenta2')
         print("\ntemp_data_read:", temp_data_read)
         return '0'*(4-len(temp_data_read))+temp_data_read
     
-    # # Utilizado cuando hay READ MISS:
-    # # Busca en las caches si hay un bloque en estado E con la direccion pasada por parametro
-    # # para cambiar el estado de E a S
-    # def seach_cache_exclusive(self, addr_instr, processor_id):
-    #     print("\n 💛💛💛💛 seach_exclusive process 💛💛💛💛")
-    #     # Itera sobre todas las caches menos la propia
-    #     for cache_id in range(self.cores):
-    #         cache_treeview = self.treeview_cache_list[cache_id]
-    #         if processor_id != cache_id:
-    #             for i in range(self.cores):
-    #                 block = cache_treeview.item('b'+str(i))['values']
-    #                 block_addr = str(block[1]) + str(block[2])
-    #                 block_addr = '0'*(3-len(block_addr))+block_addr
-    #                 if (block_addr == addr_instr and block[0] == 'E'):
-    #                     print("💌💌💌💌 Encuentra un bloque en estado E 💌💌💌💌")
-    #                     # cache_block = ['state', tag, index, data]
-    #                     print("✝️ old_block:", block)
-    #                     block = ['S', block_addr[0:2], block_addr[2], '0'*(4-len(str(block[3])))+str(block[3])]
-    #                     print("❇️ new_block:", block)
-    #                     cache_treeview.item('b'+str(i), values=block)
-    #                     # Hace un sleep de 0.5 segundos
-    #                     time.sleep(0.5)
-    #                     # Cambia el color del bloque del treeview a verde
-    #                     ####cache_treeview.tag_configure('b'+str(i), background='green2')
-    #                     return
-    #     return
