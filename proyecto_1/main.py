@@ -12,12 +12,16 @@ from bus import Bus
 class MainWindow():
     def __init__(self, root):
         super().__init__()
+        
+        self.root = root
+        
+        # Flag running
+        self.playing = False
 
         # Styles
         style = ttk.Style()
         style.configure("White.TFrame", background="white")
         style.configure("Blue.TFrame", background="SkyBlue2")
-
 
         # Tkinter frames
         root_frame = ttk.Frame(root, style="White.TFrame")
@@ -150,6 +154,7 @@ class MainWindow():
         self.button_start.grid(column=0, row=0, padx=5)
         self.button_next.grid(column=2, row=0, padx=25)
         self.button_stop.grid(column=1, row=0)
+        self.button_stop.state(['disabled'])
 
         # Positioning Cpu cores tables
         for i in range(self.cores):
@@ -202,13 +207,39 @@ class MainWindow():
 
     def start(self):
         print("\n✅ Se presiona start: ")
+        self.playing = True
+        self.update_next()
+        self.button_next.state(['disabled'])
+        self.button_start.state(['disabled'])
+        self.button_stop.state(['!disabled'])
         
-        self.put_new_instructions()
+    def update_next(self):
+        
+        if(self.playing):
+        
+            self.next_action()
+            self.root.after(2000, self.update_next)
+            
+        
+        # self.put_new_instructions()
 
     def next(self):
+        self.button_next.state(['!disabled'])
+        self.button_start.state(['!disabled'])
+        self.button_stop.state(['disabled'])
         print("\n⏩ Se presiona Next:\n")
         print("\tNEXT instr 🔜 => CURRENT instr ❇️")
         print("\t🔃 Procesando CURRENT instr ❇️")
+        self.next_action()
+
+    def stop(self):
+        self.playing = False
+        self.root.after_cancel(self.update_next)
+        self.button_next.state(['!disabled'])
+        self.button_start.state(['!disabled'])
+        self.button_stop.state(['disabled'])
+
+    def next_action(self):
         threads = list()
         for i in range(self.cores):
             thread_i =  thread.Thread(target=self.cpu_list[i].process_instruction, args=(self.next_instr_list[i].get(),), 
@@ -223,11 +254,6 @@ class MainWindow():
         
         thread_bus = thread.Thread(target=self.bus.process_bus_queue, args=())
         thread_bus.start()
-
-    def stop(self):
-
-        pass
-
 
 if __name__ == "__main__":
     root = Tk()
