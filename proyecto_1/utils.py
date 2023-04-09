@@ -12,7 +12,7 @@ def generate_instruction(processor_id):
         return f"P{processor_id}: {operation} {address}"
     
     if operation == 'WRITE':
-        data = hex(random.randint(0, 65535))[2:].zfill(3)
+        data = hex(random.randint(0, 65535))[2:].zfill(4)
         return f"P{processor_id}: {operation} {address} ; {data}"
     
     return f"P{processor_id}: {operation}"

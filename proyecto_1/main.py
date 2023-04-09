@@ -7,6 +7,7 @@ from main_mem import MainMem
 import utils
 import threading as thread
 import queue
+from bus import Bus
 
 class MainWindow():
     def __init__(self, root):
@@ -17,14 +18,14 @@ class MainWindow():
         buttons_frame = ttk.Frame(root_frame, padding="30 30 30 30")
         tables_frame = ttk.Frame(root_frame, padding="30 0 0 0")
 
-        self.cores = 1
+        self.cores = 4
         self.main_mem_blocks = 8
         self.cpu_list = []
         self.table_list = []
         self.bus_queue = queue.Queue()
 
-        self.cpu_table_headers = ('state', 'addr', 'set', 'data')
-        self.cpu_table_headers_text = ('State', 'Addr', 'Set', 'Data')
+        self.cpu_table_headers = ('state', 'tag', 'index', 'data')
+        self.cpu_table_headers_text = ('State', 'Tag', 'Index', 'Data')
 
         self.current_instr_list = []
         self.next_instr_list = []
@@ -47,12 +48,7 @@ class MainWindow():
         label_next_inst_title_list = []
         entries_next_instr_list = []
         label_current_inst_list = []
-
-        #next_instr_title = ttk.Label(
-        #    buttons_frame, text='Next instruction:', font="Arial 12 bold")
-        #next_instr_entry = ttk.Entry(
-        #    buttons_frame, font="Arial 12", textvariable=self.next_instr_entry_text, width=25)
-
+        labels_bus_list = []
 
         # Initialize Cpu core lists and TreeViews
         for i in range(self.cores):
@@ -75,14 +71,19 @@ class MainWindow():
                 ttk.Label(tables_frame, text='P'+str(i), foreground="blue", font="Arial 16 bold"))
             self.table_list.append(ttk.Treeview(
                 tables_frame, columns=self.cpu_table_headers, height=4))
+            # Bus
+            labels_bus_list.append(ttk.Label(
+                tables_frame, textvariable=self.bus_msgs_list[i], font="Arial 8", background="yellow", foreground="black", width=11))
 
         self.main_mem_table = ttk.Treeview(tables_frame, columns=(
             'address', 'data'), show='headings', height=self.main_mem_blocks)
 
         self.main_mem = MainMem(self.main_mem_table)
-
+        
         self.table_list.append(self.main_mem_table)
 
+        self.bus = Bus(self.main_mem.cache_tree_view, self.bus_queue, self.table_list, self.cores)
+        
         # Creating Cpu cores
         for i in range(self.cores):
             self.cpu_list.append(CpuController(
@@ -101,13 +102,13 @@ class MainWindow():
         # Initialize Cpu cores data with default values
         for i in range(self.cores):
             self.table_list[i].insert(
-                '', 'end', 'b0', text='B0', tags='b0', values=('I', '000', '0', '0000'))
+                '', 'end', 'b0', text='B0', tags='b0', values=('I', '00', '0', '0000'))
             self.table_list[i].insert(
-                '', 'end', 'b1', text='B1', tags='b1', values=('I', '000', '0', '0000'))
+                '', 'end', 'b1', text='B1', tags='b1', values=('I', '00', '0', '0000'))
             self.table_list[i].insert(
-                '', 'end', 'b2', text='B2', tags='b2', values=('I', '000', '1', '0000'))
+                '', 'end', 'b2', text='B2', tags='b2', values=('I', '00', '1', '0000'))
             self.table_list[i].insert(
-                '', 'end', 'b3', text='B3', tags='b3', values=('I', '000', '1', '0000'))
+                '', 'end', 'b3', text='B3', tags='b3', values=('I', '00', '1', '0000'))
 
         self.main_mem_table.column('address', width=70, anchor='center')
         self.main_mem_table.heading('address', text='Address')
@@ -116,7 +117,7 @@ class MainWindow():
 
         for i in range(self.main_mem_blocks):
             self.main_mem_table.insert(
-                '', 'end', 'm'+str(i), text='M'+str(i), tags='b'+str(i), values=(self.int_to_binary(i), '000'))
+                '', 'end', 'm'+str(i), text='M'+str(i), tags='m'+str(i), values=(self.int_to_binary(i), '000'))
 
         # Positioning frames
         root_frame.grid(column=0, row=0)
@@ -126,9 +127,6 @@ class MainWindow():
         self.button_start.grid(column=0, row=0)
         self.button_next.grid(column=1, row=0)
         self.button_stop.grid(column=2, row=0)
-        
-        #next_instr_title.grid(column=3, row=0, padx=20)
-        #next_instr_entry.grid(column=4, row=0, padx=5)
 
         # Positioning Cpu cores tables
         for i in range(self.cores):
@@ -140,16 +138,17 @@ class MainWindow():
             label_current_inst_list[i].grid(column=i, row=4)
             self.table_list[i].grid(
                 column=i, row=5, padx=15, pady=5, columnspan=1)
+            labels_bus_list[i].grid(column=i, row=6)
 
         # Creating and positioning bus image
         bus_img = Image.open("bus_img.png")
         bus_img_tk = ImageTk.PhotoImage(bus_img)
         bus_img_label = ttk.Label(tables_frame, image=bus_img_tk)
         bus_img_label.image = bus_img_tk
-        bus_img_label.grid(column=0, row=6, columnspan=4, pady=10)
+        bus_img_label.grid(column=0, row=7, columnspan=4, pady=10)
 
         # Positioning main memory tables
-        self.main_mem_table.grid(column=0, row=7, columnspan=4)
+        self.main_mem_table.grid(column=0, row=8, columnspan=4)
 
     def int_to_binary(self, n):
         binary_str = ""
@@ -192,8 +191,12 @@ class MainWindow():
 
         self.put_new_instructions()
         print()
+        
+        thread_bus = thread.Thread(target=self.bus.process_bus_queue, args=())
+        thread_bus.start()
 
     def stop(self):
+
         pass
 
 

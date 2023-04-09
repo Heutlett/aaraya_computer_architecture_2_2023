@@ -19,7 +19,7 @@ class MainMem:
         return values
 
     def change_row_color_green(self, block):
-        self.cache_tree_view.tag_configure('b'+str(block), background='green2')
+        self.cache_tree_view.tag_configure('m'+str(block), background='green2')
         
     def change_row_color_white(self, block):
-        self.cache_tree_view.tag_configure('b'+str(block), background='white')
+        self.cache_tree_view.tag_configure('m'+str(block), background='white')
