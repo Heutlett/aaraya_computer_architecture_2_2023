@@ -22,12 +22,14 @@ class MainWindow():
         style = ttk.Style()
         style.configure("White.TFrame", background="white")
         style.configure("Blue.TFrame", background="SkyBlue2")
+        style.configure("Azure.TFrame", background="LightBlue1")
 
         # Tkinter frames
         root_frame = ttk.Frame(root, style="White.TFrame")
         buttons_frame = ttk.Frame(root_frame, style="White.TFrame", padding="0 10 0 10")
         tables_frame = ttk.Frame(root_frame, style="White.TFrame", padding="30 0 0 0")
         mem_frame = ttk.Frame(tables_frame, style="Blue.TFrame", padding="0 10 0 10")
+        colors_ref_frame = ttk.Frame(tables_frame, style="Azure.TFrame", padding="0 0 0 0")
 
         # System variables
         self.cores = 4
@@ -49,20 +51,16 @@ class MainWindow():
         # Images for buttons
         self.start_image = ImageTk.PhotoImage(Image.open('play_button.png')
             .resize((130,50), Image.ANTIALIAS))
-        
         self.stop_image = ImageTk.PhotoImage(Image.open('stop_button.png')
             .resize((130,50), Image.ANTIALIAS))
-        
         self.next_image = ImageTk.PhotoImage(Image.open('next_button.png')
             .resize((130,50), Image.ANTIALIAS))
 
         # Buttons
         self.button_start = ttk.Button(
             buttons_frame, text='Play', image=self.start_image, command=self.start)
-
         self.button_next = ttk.Button(
             buttons_frame, text='Next', image=self.next_image, command=self.next)
-
         self.button_stop = ttk.Button(
             buttons_frame, text='Stop', image=self.stop_image, command=self.stop)
 
@@ -182,9 +180,34 @@ class MainWindow():
 
         # Positioning main memory tables
         mem_title = ttk.Label(mem_frame, foreground='white', background='SteelBlue4',text='        Main Memory        ', font="Arial 16 bold")        
-        mem_frame.grid(column=0, row=8, columnspan=4)
+        mem_frame.grid(column=1, row=8, columnspan=2)
         mem_title.grid(column=0, row=0)
         self.main_mem_table.grid(column=0, row=1, pady=5)
+
+        # Colors reference
+        colors_ref_frame.grid(column=0, row=8)
+        title_color_ref = ttk.Label(colors_ref_frame, foreground='white', background='SteelBlue4', width=20, text='Colors reference', font="Arial 10 bold")
+        read_hit_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='SeaGreen1',text='Read hit', font="Arial 10 bold")
+        read_miss_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='Salmon',text='Read miss', font="Arial 10 bold")
+        read_after_miss_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='yellow',text='Read after miss', font="Arial 10 bold")
+        write_miss_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='HotPink',text='Write miss', font="Arial 10 bold")
+        write_hit_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='DarkOrange1',text='Write hit', font="Arial 10 bold")
+        write_after_miss = ttk.Label(colors_ref_frame, foreground='black', width=20, background='green2',text='Write after miss', font="Arial 9 bold")
+        wb_mem_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='turquoise1',text='Write back', font="Arial 10 bold")
+        found_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='RoyalBlue1',text='Found (O, M) in other P', font="Arial 9 bold")
+        to_invalidate_color = ttk.Label(colors_ref_frame, foreground='black', width=20, background='red',text='To invalidate', font="Arial 10 bold")
+        title_color_ref.grid        (column=0, row=0, pady=5)
+        read_hit_color.grid         (column=0, row=1, pady=2)
+        read_miss_color.grid        (column=0, row=2, pady=2)
+        read_after_miss_color.grid  (column=0, row=3, pady=2)
+        write_hit_color.grid        (column=0, row=4, pady=2)
+        write_miss_color.grid       (column=0, row=5, pady=2)
+        write_after_miss.grid       (column=0, row=6, pady=2)
+        wb_mem_color.grid           (column=0, row=7, pady=2)
+        found_color.grid            (column=0, row=8, pady=2)
+        to_invalidate_color.grid    (column=0, row=9, pady=2)
+        
+        
 
     def put_new_instructions(self):
         print("\n\t✴️  Se crean las NEXT 🔜 instr:")
@@ -232,9 +255,7 @@ class MainWindow():
             thread_i.start()
             
         sleep(0.3)
-
         self.put_new_instructions()
-        print()
         
         thread_bus = thread.Thread(target=self.bus.process_bus_queue, args=())
         thread_bus.start()

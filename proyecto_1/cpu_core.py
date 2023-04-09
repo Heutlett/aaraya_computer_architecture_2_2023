@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from numpy import random
+import time
 
 class CpuController:
     def __init__(self, processor_id, cache_tree_view, instr_string_var, bus_string_var, bus_queue):
@@ -57,17 +58,19 @@ class CpuController:
                 # Estado del bloque
                 state = block[0]
                 
-                # Si encuentra el bloque pero esta invalido [READ MISS]
+                # [READ MISS]: Si encuentra el bloque pero esta invalido 
                 if state == 'I':
                     print("READ MISS - STATE I")
                     request_type = 'READ MISS'
-                    #self.cpu.change_block_color_red(block_id)
-                # Si encuentra el bloque y no esta invalido [READ HIT]
+                    # Cambia el color a salmon
+                    self.cpu.change_block_color_read_miss(block_id)
+                    
+                # [READ HIT]: Si encuentra el bloque y no esta invalido 
                 else:
                     print("READ HIT")
                     request_type = 'READ HIT'
-                    # Cambia el bloque encontrado a color verde
-                    self.cpu.change_block_color_green(block_id)
+                    # Cambia el bloque encontrado a color SeaGreen1
+                    self.cpu.change_block_color_read_hit(block_id)
             
             # NO encuentra el address de la instr en la cache
             else:    
@@ -75,6 +78,7 @@ class CpuController:
                 request_type = 'READ MISS'
                 block_id = self.replace_block_set_2way(address)
                 print("set_num:", block_id)
+                # No se pinta nada en el bloque de cache actual
             
             # ---- Se actuliza el label de la cache al bus y se agrega un request al bus ----
             self.bus_string_var.set(request_type)
@@ -82,6 +86,7 @@ class CpuController:
             new_request_bus = ['P'+str(self.processor_id), request_type, 'b'+str(block_id), address]
             self.bus_queue.put(new_request_bus)
             print("Request addeed to bus queue: ", new_request_bus)
+            time.sleep(0.5)
             return
 
         # Instruccion WRITE
@@ -89,30 +94,32 @@ class CpuController:
             print("Ejecutando WRITE:")
             data = instruction_parts[4]
             
-            # Si el address de la instr esta en la cache
+            # Si el address de la instr esta en la cache local
             if block != -1:
                 
                 # Estado del bloque
                 state = block[0]
                 
-                # Si encuentra el bloque pero esta invalido [WRITE MISS]
-                if state == 'I':
+                # Si encuentra el bloque pero esta en I, O, S [WRITE MISS]
+                if state == 'I' or state == 'O' or state == 'S':
                     print("WRITE MISS - STATE I")
                     request_type = 'WRITE MISS'
-                    self.cpu.change_block_color_red(block_id)
+                    # Cambia el bloque encontrado a color hotpink
+                    self.cpu.change_block_color_write_miss(block_id)
+                    
                 # Si encuentra el bloque y no esta invalido [WRITE HIT]
                 else:
                     print("WRITE HIT")
                     request_type = 'WRITE HIT'
-                    # Cambia el bloque encontrado a color verde
-                    self.cpu.change_block_color_green(block_id)
+                    # Cambia el bloque encontrado a color gold
+                    self.cpu.change_block_color_write_hit(block_id)
                 
-            # Si el address de la instr no esta en la cache    
+            # Si el address de la instr no esta en la cache local
             else:       
                 print("WRITE MISS")
                 request_type = 'WRITE MISS'
-                block_id = self.replace_block_set_2way(address) 
-            
+                block_id = self.replace_block_set_2way(address)
+                
             # ---- Se actuliza el label de la cache al bus y se agrega un request al bus ----
             self.bus_string_var.set(request_type)
             # new_request_bus = ['Pn','READ MISS', 'bn', address]
@@ -222,6 +229,23 @@ class CpuCore:
     # Cambia el color de un bloque a verde
     def change_block_color_green(self, block):
         self.cache_tree_view.tag_configure('b'+str(block), background='green2')
+        
+    # Cambia el color de un bloque a SeaGreen1
+    def change_block_color_read_hit(self, block):
+        self.cache_tree_view.tag_configure('b'+str(block), background='SeaGreen1')
+        
+    # Cambia el color de un bloque a salmon
+    def change_block_color_read_miss(self, block):
+        self.cache_tree_view.tag_configure('b'+str(block), background='Salmon')
+        
+    # Cambia el color de un bloque a SeaGreen1
+    def change_block_color_write_miss(self, block):
+        self.cache_tree_view.tag_configure('b'+str(block), background='HotPink')
+        
+    # Cambia el color de un bloque a gold
+    def change_block_color_write_hit(self, block):
+        self.cache_tree_view.tag_configure('b'+str(block), background='DarkOrange1')
+    
     
     # Cambia el color de un bloque a rojo
     def change_block_color_red(self, block):
