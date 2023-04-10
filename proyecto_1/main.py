@@ -53,11 +53,11 @@ class MainWindow():
         self.next_instr_entry_text = StringVar()
         
         # Images for buttons
-        self.start_image = ImageTk.PhotoImage(Image.open('play_button.png')
+        self.start_image = ImageTk.PhotoImage(Image.open('imgs/play_button.png')
             .resize((130,50), Image.ANTIALIAS))
-        self.stop_image = ImageTk.PhotoImage(Image.open('stop_button.png')
+        self.stop_image = ImageTk.PhotoImage(Image.open('imgs/stop_button.png')
             .resize((130,50), Image.ANTIALIAS))
-        self.next_image = ImageTk.PhotoImage(Image.open('next_button.png')
+        self.next_image = ImageTk.PhotoImage(Image.open('imgs/next_button.png')
             .resize((130,50), Image.ANTIALIAS))
 
         # Buttons
@@ -176,7 +176,7 @@ class MainWindow():
             labels_bus_list[i].grid(column=i, row=6, pady=5)
 
         # Creating and positioning bus image
-        bus_img = Image.open("bus_img.png")
+        bus_img = Image.open("imgs/bus_img.png")
         bus_img_tk = ImageTk.PhotoImage(bus_img)
         bus_img_label = ttk.Label(tables_frame, image=bus_img_tk)
         bus_img_label.image = bus_img_tk
