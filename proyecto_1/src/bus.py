@@ -3,17 +3,18 @@ import time
 
 class Bus:
 
-    def __init__(self, treeview_main_mem, bus_queue, treeview_cache_list, cores):
+    def __init__(self, treeview_main_mem, bus_queue, treeview_cache_list, cores, mem_freq, cpu_freq):
         super().__init__()
         self.treeview_main_mem = treeview_main_mem
         self.treeview_cache_list = treeview_cache_list
         self.request_queue = bus_queue
         self.cores = cores
-
+        self.mem_freq = mem_freq
+        self.cpu_freq = cpu_freq
+        
     # Procesa las requests que hay en la cola del bus
     def process_bus_queue(self):
-        # Hace un sleep de medio segundo para simular la velocidad de la memoria
-        time.sleep(0.5)
+
         # Resetea el color de los bloques de la mem principal
         for i in range(8):
             self.treeview_main_mem.tag_configure('m'+str(i), background='white')
@@ -60,7 +61,7 @@ class Bus:
                     # Actualiza el bloque del treeview
                     request_cpu_cache_treeview.item(cache_block_id, values=cache_block)
                     request_cpu_cache_treeview.tag_configure(cache_block_id, background='yellow')
-                    time.sleep(0.5)
+                    time.sleep(self.cpu_freq)
                     continue
                 else:
                     continue
@@ -81,6 +82,7 @@ class Bus:
                     # Actualiza el treeview del bloque y la cambia a color Gold
                     request_cpu_cache_treeview.item(cache_block_id, values=cache_block)
                     request_cpu_cache_treeview.tag_configure(cache_block_id, background='Gold')
+                    time.sleep(self.cpu_freq)
                     continue
                 # Request WRITE MISS
                 elif request_type == 'WRITE MISS':
@@ -99,7 +101,7 @@ class Bus:
                     request_cpu_cache_treeview.tag_configure(cache_block_id, background='green2')
                     # Busca si hay otros bloques con misma address para invalidarlos I
                     self.search_cache_to_invalidate(address_instr, processor_id)
-                    time.sleep(0.5)
+                    time.sleep(self.cpu_freq)
                     continue
             else:
                 continue
@@ -121,8 +123,8 @@ class Bus:
         # Actualiza el bloque en memoria y lo cambia color turquoise1
         self.treeview_main_mem.item(mem_block_id, values=writeback_mem_block)
         self.treeview_main_mem.tag_configure(mem_block_id, background='turquoise1')
-        # Hace un sleep de 0.5 segundos para simular el delay de la memoria
-        time.sleep(0.5)
+        # Hace un sleep de mem_freq segundos para simular el delay de la memoria
+        time.sleep(self.mem_freq)
     
     # Utilizado cuando hay READ MISS:
     # Busca en todas las caches un bloque con el address pasado por parametro 
@@ -154,8 +156,8 @@ class Bus:
                     if block_addr == addr_instr and block[0] != 'I':
                         block = ['I', block_addr[0:2], block_addr[2], '0'*(4-len(str(block[3])))+str(block[3])]
                         cache_treeview.item('b'+str(i), values=block)
-                        # Hace un sleep de 0.5 segundos
-                        time.sleep(0.5)
+                        # Hace un sleep de cpu_freq segundos
+                        time.sleep(self.cpu_freq)
                         # Cambia el color del bloque del treeview a salmon
                         cache_treeview.tag_configure('b'+str(i), background='red')
         return
@@ -176,8 +178,8 @@ class Bus:
                     if block_addr == addr_instr and (block_state == 'O' or block_state == 'M'):
                         block = ['O', block_addr[0:2], block_addr[2], '0'*(4-len(str(block[3])))+str(block[3])]
                         cache_treeview.item('b'+str(i), values=block)
-                        # Hace un sleep de 0.5 segundos
-                        time.sleep(0.5)
+                        # Hace un sleep de cpu_freq segundos
+                        time.sleep(self.cpu_freq)
                         # Cambia el color del bloque del treeview a verde
                         cache_treeview.tag_configure('b'+str(i), background='RoyalBlue1')
                         # Retorna el dato del bloque
@@ -186,6 +188,7 @@ class Bus:
         # Se trae el dato de la memoria principal
         mem_block_id = 'm'+str(int(addr_instr,2))
         temp_data_read = str(self.treeview_main_mem.item(mem_block_id)['values'][1])
+        time.sleep(self.mem_freq)
         # Se cambia el color del bloque en la memoria
         self.treeview_main_mem.tag_configure(mem_block_id, background='Magenta2')
         return '0'*(4-len(temp_data_read))+temp_data_read

@@ -4,13 +4,14 @@ from numpy import random
 import time
 
 class CpuController:
-    def __init__(self, processor_id, cache_tree_view, instr_string_var, bus_string_var, bus_queue):
+    def __init__(self, processor_id, cache_tree_view, instr_string_var, bus_string_var, bus_queue, cpu_freq):
         self.processor_id = processor_id
         self.cache_size = 4
         self.current_instr_string_var = instr_string_var
         self.bus_string_var = bus_string_var
         self.cpu = CpuCore(processor_id, cache_tree_view, self.cache_size)
         self.bus_queue = bus_queue
+        self.cpu_freq = cpu_freq
         
     def process_instruction(self, instr_string_var):
         # Se actualiza el StringVar de la instruccion actual
@@ -74,7 +75,7 @@ class CpuController:
             self.bus_string_var.set(request_type)
             new_request_bus = ['P'+str(self.processor_id), request_type, 'b'+str(block_id), address]
             self.bus_queue.put(new_request_bus)
-            time.sleep(0.5)
+            time.sleep(self.cpu_freq)
             return
 
         # Instruccion WRITE
@@ -108,6 +109,7 @@ class CpuController:
             self.bus_string_var.set(request_type)
             new_request_bus = ['P'+str(self.processor_id), request_type, 'b'+str(block_id), address, data]
             self.bus_queue.put(new_request_bus)
+            time.sleep(self.cpu_freq)
             return
         
     # Politica de reemplazo utilizada: I,S,E,M,O

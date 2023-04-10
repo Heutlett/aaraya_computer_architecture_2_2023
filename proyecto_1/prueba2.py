@@ -1,5 +1,19 @@
-import random
 import math
+import random
+from datetime import datetime
+
+def generate_random(a,b):    
+    
+    seed = datetime.now()
+    seed = seed.strftime("%H:%M:%S.%f")
+
+    seed = int(seed.replace(":", "").replace(".", ""))
+
+    # Calculamos un número aleatorio entre a y b a partir del tiempo actual en milisegundos
+    numero_aleatorio = (((seed * 1115245 + 12345) // 65536) % (b - a + 1)) + a
+
+    return numero_aleatorio
+
 
 def poisson(lam, size):
     """
@@ -21,6 +35,7 @@ def poisson(lam, size):
 
 
 def generate_instruction(processor_id):
+    #operation = random.choice(['READ', 'WRITE', 'CALC'])
     instr_op = ['READ', 'WRITE', 'CALC']
     rand_op_list = poisson(10,3)
     rand_max_op_index = rand_op_list.index(max(rand_op_list))
@@ -30,6 +45,7 @@ def generate_instruction(processor_id):
     data = None
 
     if operation != 'CALC':
+        #address = bin(random.randint(0, 7))[2:].zfill(3)
         instr_addr = ['000', '001', '010', '011', '100', '101', '110', '111']
         rand_addr_list = poisson(10,8)
         rand_max_addr_index = rand_addr_list.index(max(rand_addr_list))
@@ -43,20 +59,6 @@ def generate_instruction(processor_id):
         return f"P{processor_id}: {operation} {address} ; {data}"
     
     return f"P{processor_id}: {operation}"
-
-def set_next_instruction(processor_id, next_inst_string_var):
-    next_inst_string_var.set(generate_instruction(processor_id))
     
 
-def int_to_binary(n):
-    binary_str = ""
-    if(n == 0):
-        return "000"
-    while n > 0:
-        remainder = n % 2
-        binary_str = str(remainder) + binary_str
-        n = n // 2
-    if len(binary_str) < 4:
-        binary_str = "0" * (3 - len(binary_str)) + binary_str
-
-    return binary_str
+print(generate_instruction(1))

@@ -15,6 +15,10 @@ class MainWindow():
         
         self.root = root
         
+        # Processor and memory frequency
+        self.cpu_freq = 0.4
+        self.mem_freq = self.cpu_freq + self.cpu_freq*0.6
+        
         # Flag running
         self.playing = False
 
@@ -108,12 +112,12 @@ class MainWindow():
         self.table_list.append(self.main_mem_table)
 
         # Creating bus
-        self.bus = Bus(self.main_mem.cache_tree_view, self.bus_queue, self.table_list, self.cores)
+        self.bus = Bus(self.main_mem.cache_tree_view, self.bus_queue, self.table_list, self.cores, self.mem_freq, self.cpu_freq)
         
         # Creating Cpu cores
         for i in range(self.cores):
             self.cpu_list.append(CpuController(
-                i, self.table_list[i], self.current_instr_list[i], self.bus_msgs_list[i], self.bus_queue))
+                i, self.table_list[i], self.current_instr_list[i], self.bus_msgs_list[i], self.bus_queue, self.cpu_freq))
             # First column block
             self.table_list[i].column('#0', width=60)
             self.table_list[i].heading('#0', text='Block')
