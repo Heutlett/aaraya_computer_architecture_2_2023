@@ -17,7 +17,7 @@ class MainWindow():
         
         # Processor and memory frequency
         self.cpu_freq = 0.4
-        self.mem_freq = self.cpu_freq + self.cpu_freq*0.6
+        self.mem_freq = self.cpu_freq + self.cpu_freq*0.4
         
         # Flag running
         self.playing = False

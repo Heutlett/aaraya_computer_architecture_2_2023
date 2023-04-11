@@ -14,7 +14,7 @@ class Bus:
         
     # Procesa las requests que hay en la cola del bus
     def process_bus_queue(self):
-
+        time.sleep(0.5)
         # Resetea el color de los bloques de la mem principal
         for i in range(8):
             self.treeview_main_mem.tag_configure('m'+str(i), background='white')
@@ -81,7 +81,7 @@ class Bus:
                     cache_block[3] = data_write
                     # Actualiza el treeview del bloque y la cambia a color Gold
                     request_cpu_cache_treeview.item(cache_block_id, values=cache_block)
-                    request_cpu_cache_treeview.tag_configure(cache_block_id, background='Gold')
+                    request_cpu_cache_treeview.tag_configure(cache_block_id, background='DarkOrange1')
                     time.sleep(self.cpu_freq)
                     continue
                 # Request WRITE MISS
